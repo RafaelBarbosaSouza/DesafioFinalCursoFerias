@@ -18,6 +18,7 @@ Baixe o arquivo index.html desse repositório e crie uma calculadora de IMC segu
 
 1. O usuário não deve poder realizar o cálculo sem informar a altura e peso
 2. O usuário não deve poder realizar o cálculo se informar um altura ou peso inferior a 1
+3. Apenas uma mensagem de aviso deve ser apresentada por vez
 
 ### Importante
 
