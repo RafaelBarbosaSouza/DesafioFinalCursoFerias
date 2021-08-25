@@ -131,7 +131,7 @@
               },
               filters: {
                 formatDecimal(value) {
-                    return "R$ " + value.toFixed(2).replace(".", ",")
+                    return value.toFixed(2).replace(".", ",")
                 }
               }
         })
