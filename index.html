@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <div class="container">
+    <div id="app" class="container">
         <div class="row">
             <div class="col-md-12">
                 
@@ -22,38 +22,38 @@
                       <div class="modal-body p-5 pt-0">
                         <form class="">
                           <div class="form-floating mb-3">
-                            <input type="number" class="form-control rounded-4" id="altura" placeholder="name@example.com">
+                            <input v-model="altura" type="number" class="form-control rounded-4" id="altura" placeholder="name@example.com">
                             <label for="altura">Informe a sua altura</label>
                           </div>
                           <div class="form-floating mb-3">
-                            <input type="number" class="form-control rounded-4" id="peso" placeholder="Password">
+                            <input v-model="peso" type="number" class="form-control rounded-4" id="peso" placeholder="Password">
                             <label for="peso">Informe o seu peso</label>
                           </div>
-                          <button class="w-100 mb-2 btn btn-lg rounded-4 btn-primary" type="submit">Calcular</button>
+                          <button @click="calcular" class="w-100 mb-2 btn btn-lg rounded-4 btn-primary" type="submit">Calcular</button>
                         </form>
                       </div>
                     </div>
 
-                    <div class="alert alert-danger mt-3">
+                    <div v-if="camposObrigatorio" class="alert alert-danger mt-3">
                         <strong>Ops!!!</strong><br>
-                        Você esqueceu de informar a sua altura
+                        {{ mensagemCamposObrigatorios }}
                     </div>
 
-                    <div class="alert alert-danger mt-3">
+                    <div v-if="magrezaGrave | obesidade" class="alert alert-danger mt-3">
                         <strong>Cuidado!</strong><br>
-                        O seu IMC é: <strong>40</strong>,<br>
-                        Esse valor está muito elevado e pode trazer riscos a sua saúde!
+                        O seu IMC é: <strong>{{ imc | formatDecimal }}</strong>,<br>
+                        {{ mensagem }}
                     </div>
 
-                    <div class="alert alert-warning mt-3">
+                    <div v-if="magrezaLeve | sobrepeso" class="alert alert-warning mt-3">
                         <strong>Cuidado!</strong><br>
-                        O seu IMC é: <strong>10</strong>,<br>
-                        Esse valor está muito baixo e pode trazer riscos a sua saúde!
+                        O seu IMC é: <strong>{{ imc | formatDecimal }}</strong>,<br>
+                        {{ mensagem }}
                     </div>
 
-                    <div class="alert alert-success mt-3">
+                    <div v-if="saldavel" class="alert alert-success mt-3">
                         <strong>Parabéns!</strong><br>
-                        O seu IMC é: <strong>22</strong>,<br>
+                        O seu IMC é: <strong>{{ imc | formatDecimal }}</strong>,<br>
                         Esse valor está de acordo com o esperado, continue se cuidando!
                     </div>
 
@@ -63,11 +63,80 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
     <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                altura: '',
+                peso: '',
+                imc: 0,
+                camposObrigatorio: false,
+                magrezaGrave: false,
+                magrezaLeve: false,
+                saldavel: false,
+                sobrepeso: false,
+                obesidade: false,
+                mensagem: '',
+                mensagemCamposObrigatorios: '',
+            },
+            methods: {
+                
+                calcular( event ) {
+                    event.preventDefault()
+                    this.camposObrigatorio = false;
+                    this.magrezaGrave = false;
+                    this.magrezaLeve = false;
+                    this.saldavel = false;
+                    this.sobrepeso = false;
+                    this.obesidade = false;
+                    let altura = parseFloat(this.altura.trim());
+                    let peso = parseFloat(this.peso.trim());
 
-        // Seu código aqui...
+                    if(isNaN(altura) || altura < 1) {
+                      this.camposObrigatorio = true;
+                      this.mensagemCamposObrigatorios = 'Você esqueceu de informar a sua altura';
+                    } else if (isNaN(peso) || peso < 1) {
+                      this.camposObrigatorio = true;
+                      this.mensagemCamposObrigatorios = 'Você esqueceu de informar o seu peso';
+                    } else {
+                      this.imc = peso / Math.pow(altura, 2);
+                      console.log('calculando', altura + ' ' + peso);
+                      console.log('IMC', this.imc);
+                      this.validarImc(this.imc);
+                      this.altura = '';
+                      this.peso = '';
+                    }
+                },
+                validarImc ( valorImc ) {
+                  if(valorImc < 16) {
+                    this.magrezaGrave = true;
+                    this.mensagem = 'Esse valor indica magreza grave e pode trazer riscos a sua saúde!';
+                  } else if(valorImc >= 16 && this.imc <=18.49) {
+                    this.magrezaLeve = true;
+                    this.mensagem = 'Esse valor indica magreza leve/moderada e pode trazer riscos a sua saúde!';
+                  } else if(valorImc >= 18.5 && this.imc <=24.99){
+                    this.saldavel = true;
+                    this.mensagem = 'Esse valor indica massa corporal saldável e pode trazer riscos a sua saúde!';
+                  } else if(valorImc >= 25 && this.imc <=29.99){
+                    this.sobrepeso = true;
+                    this.mensagem = 'Esse valor indica sobrepeso e pode trazer riscos a sua saúde!';
+                  } else if(valorImc >= 30 && this.imc <=40){
+                    this.obesidade = true;
+                    this.mensagem = 'Esse valor está muito elevado e pode trazer riscos a sua saúde!';
+                  }
+                }
 
+              },
+              filters: {
+                formatDecimal(value) {
+                    return "R$ " + value.toFixed(2).replace(".", ",")
+                }
+              }
+        })
     </script>
+
     
 </body>
 </html>
